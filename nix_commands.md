@@ -1,0 +1,5 @@
+- nix
+- nix-env
+- nix-store
+- nixos-rebuild
+- nix-collect-garbage
