@@ -1,7 +1,23 @@
 { config, pkgs, inputs, ... }:
 {
   #Important system setup
-  imports = [ ./hardware-configuration.nix ]; #inputs.home-manager];
+  imports = #with {}
+  [ ./hardware-configuration.nix
+    #let {
+    #  nixvim = import (builtins.fetchGit {
+    #    url = "https://github.com/nix-community/nixvim";
+    #    # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
+    #    ref = "nixos-23.05";
+    #  });
+    #}; in {
+    #  # For home-manager
+    #  nixvim.homeManagerModules.nixvim
+    #  # For NixOS
+    #  nixvim.nixosModules.nixvim
+    #  # For nix-darwin
+    #  nixvim.nixDarwinModules.nixvim
+    #}
+  ]; #inputs.home-manager];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   swapDevices = [ {
@@ -142,6 +158,10 @@
     distrobox
     podman
     htop
+    btop
+    bat
+    eza
+    tlrd
     neofetch
     ranger
     w3m
@@ -159,6 +179,7 @@
     nmap
     ncdu
     thefuck
+    powertop
     
     #Programming Languages
     libgccjit
@@ -192,16 +213,7 @@
     gnome.gnome-tweaks
 
   ];
-  #let 
-  #  nixvim = import (builtins.fetchGit {
-  #    url = "https://github.com/nix-community/nixvim";
-  #    ref = "nixos-23.05";
-  #  });
-  #in
-  #{
-  #  imports = [ nixvim.nixosModules.nixvim ];
-  #  programs.nixvim.enable = true;
-  #}
+  
   
   system.stateVersion = "23.11";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
