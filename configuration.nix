@@ -140,10 +140,12 @@
 
     #Bash Tools
     home-manager
+    nix-output-monitor
+    nvd
     git
     gitg
     neovim
-    fzy
+    fzf
     wget
     curl
     gnutar
