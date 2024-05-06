@@ -1,8 +1,5 @@
 { config, pkgs, ... }:
-let
-  toLua = str: "lua << EOF\n${str}\nEOF\n";
-  toLuaFile = file: "lua << EOF\n${builtins.readfile file}\nEOF\n";
-in
+
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -16,14 +13,15 @@ in
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "23.11"; # Please read the comment before changing.
+  home.stateVersion = "23.05"; # Please read the comment before changing.
+  
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
+  home.packages = with pkgs; [
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
-    # pkgs.hello
+    hello
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
     # # overrides. You can do that directly here, just don't forget the
@@ -38,112 +36,6 @@ in
     #   echo "Hello, ${config.home.username}!"
     # '')
   ];
-  programs.neovim = {
-    enable = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
-    extraLuaConfig = ''
-      ${builtins.readFile ./nvim/init.lua}
-    '';
-    
-    plugins = with pkgs.vimPlugins; [
-    
-    #launguge editing plugins
-     
-      {
-        plugin = (nvim-treesitter.withPlugins (p: [
-          p.tree-sitter-nix
-          p.tree-sitter-lua
-        ]));
-        config = toLua "require(\"nvim-treesitter.configs\").setup()";
-      }
-
-      {
-        plugin = nvim-lspconfig;
-        config = toLua "require(\"lspconfig\").setup()";
-      }
-
-      {
-        plugin = mason-lspconfig-nvim;
-        config = toLua "require(\"mason-lspconfig\").setup()";
-      }
-    
-      {
-        plugin = none-ls-nvim;
-        config = toLua "require(\"null-ls\").setup()";
-      }
-      {
-        plugin = nvim-dap;
-        config = toLua "require(\"dap\").setup()";
-      }
-      {
-        plugin = nvim-dap-ui;
-        config = toLua "require(\"dapui\").setup()";
-      }
-      {
-        plugin = luasnip;
-        config = toLua "require(\"luasnip\").setup()";
-      }
-      {
-        plugin = cmp_luasnip;
-        config = toLua "require(\"cmp_luasnip\").setup()";
-      }
-      {
-        plugin = friendly-snippets;
-        config = toLua "require(\"friendly-snippets\").setup()";
-      }
-      {
-        plugin = nvim-cmp;
-        config = toLua "require(\"cmp\").setup()";
-      }
-      {
-        plugin = cmp-nvim-lsp;
-        config = toLua "require(\"cmp\").setup()";
-      }
-    
-    #assitant plugins
-      {
-        plugin = telescope-nvim;
-        config = toLua "require(\"telescope\").setup()";
-      }
-      {
-        plugin = plenary-nvim;
-        #config = toLua "require(\"plenary\").setup()";
-      }
-      {
-        plugin = telescope-fzf-naive-nvim;
-        #config = toLua "require(\"\").setup()";
-      }
-      {
-        plugin = neo-tree-nvim;
-        config = toLua "require(\"neo-tree\").setup()";
-      }
-      {
-        plugin = nvim-web-devicons;
-        #config = toLua "require(\"\").setup()";
-      }
-      {
-        plugin = nui-nvim;
-        #config = toLua "require(\"\").setup()";
-      }
-      {
-        plugin = telescope-ui-select-nvim;
-        config = toLua "require(\"\").setup()";
-      }
-
-    #appearence plugins
-      {
-        plugin = onedark-nvim;
-        config = toLua "require(\"\").setup()";
-      }
-      {
-        plugin = lualine-nvim;
-        config = toLua "require(\"\").setup()";
-      }
-    ];
-  };
-  
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
@@ -178,7 +70,16 @@ in
   home.sessionVariables = {
     # EDITOR = "emacs";
   };
+  qt.enable = true;
+  gtk.enable = true;
 
+  programs.bash = {
+    enable = true;
+    shellAliases = {
+      edit_nix = "cd /etc/nixos && su";
+      ll = "ls -l";
+    };
+  };
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }

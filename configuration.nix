@@ -59,6 +59,8 @@
   #services.xserver.displayManager.sddm.enable = true;
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  #services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.desktopManager.cinnamon.enable = true;
   services.xserver = {
     layout = "us";
     xkbVariant = "";
@@ -161,6 +163,7 @@
     flatpak-builder
     distrobox
     podman
+    docker
     htop
     btop
     bat
@@ -187,6 +190,7 @@
     
     #Programming Languages
     libgccjit
+    gcc9
     libllvm
     llvm-manpages
     rustc
