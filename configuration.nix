@@ -54,17 +54,34 @@
   ];
 
   #Desktop Setup
-  services.xserver.enable = true;
-  #services.xserver.displayManager.lightdm.enable = true;
-  #services.xserver.displayManager.sddm.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  #services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.desktopManager.cinnamon.enable = true;
+  security.polkit.enable = true;
   services.xserver = {
+    enable = true;
+    displayManager = {
+
+      #sddm = {
+      #  enable = true;
+      #};
+
+      #lightdm = {
+      #  enable = true;
+      #  extraConfig = ''
+      #    logind-check-graphical = true
+      #  '';
+      #};
+      gdm.enable = true;
+
+      defaultSession = "gnome";
+    };
+    desktopManager = {
+      gnome.enable = true;
+      #plasma5.enable = true;
+      #cinnamon.enable = true;
+    };
     layout = "us";
     xkbVariant = "";
   };
+  
 
   #I/O and Driver Setup
   hardware.opengl = {
@@ -102,6 +119,7 @@
     packages = with pkgs; [
       #firefox
       firefox-devedition
+      librewolf
       thunderbird
       birdtray
       keepassxc
@@ -139,6 +157,7 @@
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
     #Essential Tools
+    lightdm
 
     #Bash Tools
     home-manager
@@ -187,11 +206,14 @@
     ncdu
     thefuck
     powertop
+    #scrcpy
     
     #Programming Languages
     libgccjit
     gcc9
+    binutils
     libllvm
+    clang_17
     llvm-manpages
     rustc
     cargo
