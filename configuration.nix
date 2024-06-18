@@ -1,23 +1,8 @@
 { config, pkgs, inputs, ... }:
 {
   #Important system setup
-  imports = #with {}
-  [ ./hardware-configuration.nix
-    #let {
-    #  nixvim = import (builtins.fetchGit {
-    #    url = "https://github.com/nix-community/nixvim";
-    #    # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
-    #    ref = "nixos-23.05";
-    #  });
-    #}; in {
-    #  # For home-manager
-    #  nixvim.homeManagerModules.nixvim
-    #  # For NixOS
-    #  nixvim.nixosModules.nixvim
-    #  # For nix-darwin
-    #  nixvim.nixDarwinModules.nixvim
-    #}
-  ]; #inputs.home-manager];
+  imports = 
+  [ ./hardware-configuration.nix ]; 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   swapDevices = [ {
@@ -46,57 +31,69 @@
   };
 
   #Security Setup
-  security.sudo.extraRules = [
-    {
-      groups = ["wheel"];
-      commands = [{ command = "ALL"; options = ["PASSWD"];}];
-    }
-  ];
+  security = {
+    sudo.extraRules = [
+      {
+        groups = ["wheel"];
+        commands = [{ command = "ALL"; options = ["PASSWD"];}];
+      }
+    ];
+    polkit = {
+      enable = true;
+   #   extraConfig = ''
+   #   '';
+    };
+  };
 
   #Desktop Setup
-  security.polkit.enable = true;
   services.xserver = {
     enable = true;
     displayManager = {
 
-      #sddm = {
-      #  enable = true;
-      #};
+      sddm = {
+        enable = false;
+      };
 
-      #lightdm = {
-      #  enable = true;
-      #  extraConfig = ''
-      #    logind-check-graphical = true
-      #  '';
-      #};
-      gdm.enable = true;
-
-      defaultSession = "gnome";
+      lightdm = {
+        enable = true;
+        #extraConfig = ''
+          #logind-check-graphical = true
+        #'';
+      };
     };
     desktopManager = {
-      gnome.enable = true;
-      #plasma5.enable = true;
-      #cinnamon.enable = true;
+      #gnome.enable = true;
+      plasma5.enable = true;
+      xfce.enable = true;
+      cinnamon.enable = false;
     };
-    layout = "us";
-    xkbVariant = "";
+    windowManager.qtile.enable = true;
+    #layout = "us";
+    #xkbVariant = "";
   };
   
+  environment.sessionVariables = {
+    WL_NO_HARDWARE_CURSOR = "1";
+    NIXOS_OZONE_WL = "1";
+  };
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
 
   #I/O and Driver Setup
   hardware.opengl = {
     enable = true;
     driSupport = true;
-    #driSupport32bit = true;
+    #driSupport32bit = true; #Don't enable, seems to break display manager.
   };
-  services.xserver.videoDrivers = [ "nvidia" ];
+  #services.xserver.videoDrivers = [ "nvidia" ]; #Don't enable, seems to break display manager.
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = false;
     powerManagement.finegrained = false;
     open = true;
     nvidiaSettings = true;
-    #packages = config.boot.kernelPackages.nvidiaPackages.stable;
   };
   services.printing.enable = true;
   sound.enable = true;
@@ -109,15 +106,14 @@
     pulse.enable = true;
     jack.enable = true;
   };
-  services.xserver.libinput.enable = true;
+  #services.xserver.libinput.enable = true; #Don't enable, seems to break display manager.
 
   #User Setup
   users.users.saturnfulcrum = {
     isNormalUser = true;
-    description = "Shakari Wade";
+   description = "Shakari Wade";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      #firefox
       firefox-devedition
       librewolf
       thunderbird
@@ -131,14 +127,9 @@
       openrgb
       steam
       vlc
+      nushell
     ];
   };
-  #home-manager = {
-  #  extraSpecialArgs = { inherit inputs; };
-  #  users = {
-  #    saturnfulcrum = import ./home.nix;
-  #  };
-  #};
 
   
   #users.users.family = {
@@ -156,8 +147,15 @@
   #Packages Setup
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    #Essential Tools
+    #Desktop Environment tools
+    polkit_gnome #Ensure that polkit is installed
+    blueman
+
     lightdm
+    kitty #Hyprland terminal emulator
+    terminator #Hyprland terminal emulator
+    
+
 
     #Bash Tools
     home-manager
@@ -174,12 +172,12 @@
     unzip
     gzip
     python311Packages.cmake
-    neovim-gtk
+    #neovim-gtk
     wl-clipboard
     #wl-clipboard-x11
     #neovim-qt
-    flatpak
-    flatpak-builder
+    #flatpak
+    #flatpak-builder
     distrobox
     podman
     docker
@@ -238,9 +236,10 @@
     dgraph
     erlang
     rabbitmq-server
+    gleam
     
     #User Shared Programs
-    gnome.gnome-tweaks
+    #gnome.gnome-tweaks
 
   ];
   
@@ -249,8 +248,9 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   #Services and Daemon Setup
-  # services.openssh.enable = true;
-  services.flatpak.enable = true;
+  #services.openssh.enable = true;
+  #services.flatpak.enable = true;
+  services.blueman.enable = true;
 
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
