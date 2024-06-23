@@ -1,6 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
+  imports = [
+    inputs.nix-colors.homeManagerModules.default
+  ];
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "saturnfulcrum";
@@ -13,7 +16,7 @@
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "23.05"; # Please read the comment before changing.
+  home.stateVersion = "24.11"; # Please read the comment before changing.
   
 
   # The home.packages option allows you to install Nix packages into your
@@ -76,10 +79,15 @@
   programs.bash = {
     enable = true;
     shellAliases = {
-      edit_nix = "cd /etc/nixos && su";
+      edit_nix = "~/edit_nix.sh";
+      fuck = "/nix/store/11q8r4721nfqgn17gppl3s5wz5kzwayr-system-path/bin/thefuck";
       ll = "ls -l";
+      la = "ls -a";
+      lla = "ls -l -a";
+      cdup = "cd ..";
     };
   };
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  
 }

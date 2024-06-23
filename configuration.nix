@@ -85,19 +85,27 @@
   hardware.opengl = {
     enable = true;
     driSupport = true;
-    #driSupport32bit = true; #Don't enable, seems to break display manager.
+    #driSupport32bit = true;
   };
-  #services.xserver.videoDrivers = [ "nvidia" ]; #Don't enable, seems to break display manager.
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = false;
-    powerManagement.finegrained = false;
-    open = true;
-    nvidiaSettings = true;
+  #services.xserver.videoDrivers = [ "nvidia" ];
+  hardware = {
+    nvidia = {
+      modesetting.enable = true;
+      powerManagement.enable = false;
+      powerManagement.finegrained = false;
+      open = true;
+      nvidiaSettings = true;
+    };
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
+    pulseaudio = {
+      enable = false;
+    };
   };
   services.printing.enable = true;
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -106,7 +114,7 @@
     pulse.enable = true;
     jack.enable = true;
   };
-  #services.xserver.libinput.enable = true; #Don't enable, seems to break display manager.
+  #services.xserver.libinput.enable = true;
 
   #User Setup
   users.users.saturnfulcrum = {
@@ -150,17 +158,19 @@
     #Desktop Environment tools
     polkit_gnome #Ensure that polkit is installed
     blueman
-
+    bluez
+    bluez-alsa
     lightdm
-    kitty #Hyprland terminal emulator
-    terminator #Hyprland terminal emulator
-    
+    rofi
+    brightnessctl
 
 
     #Bash Tools
     home-manager
     nix-output-monitor
     nvd
+    alacritty
+    kitty
     git
     gitg
     neovim
@@ -173,8 +183,7 @@
     gzip
     python311Packages.cmake
     #neovim-gtk
-    wl-clipboard
-    #wl-clipboard-x11
+    clipboard-jh
     #neovim-qt
     #flatpak
     #flatpak-builder
@@ -186,7 +195,7 @@
     bat
     eza
     tldr
-    neofetch
+    #neofetch
     ranger
     w3m
     links2
@@ -244,7 +253,7 @@
   ];
   
   
-  system.stateVersion = "23.11";
+  system.stateVersion = "24.05";
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   #Services and Daemon Setup
