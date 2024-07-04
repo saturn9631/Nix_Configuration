@@ -136,6 +136,7 @@
       steam
       vlc
       nushell
+      gpick
     ];
   };
 
@@ -163,7 +164,7 @@
     lightdm
     rofi
     brightnessctl
-
+    pulseaudioFull
 
     #Bash Tools
     home-manager
@@ -195,7 +196,7 @@
     bat
     eza
     tldr
-    #neofetch
+    fastfetch
     ranger
     w3m
     links2
