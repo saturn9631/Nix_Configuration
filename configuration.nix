@@ -2,7 +2,7 @@
 {
   #Important system setup
   imports = 
-  [ ./hardware-configuration.nix ]; 
+  [ ./hardware-configuration.nix ];#./usr_modules/qtile.nix]; 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   swapDevices = [ {
@@ -60,11 +60,12 @@
           #logind-check-graphical = true
         #'';
       };
+      defaultSession = "none+qtile";
     };
     desktopManager = {
-      #gnome.enable = true;
+      gnome.enable = false;
       plasma5.enable = true;
-      xfce.enable = true;
+      xfce.enable = false;
       cinnamon.enable = false;
     };
     windowManager.qtile.enable = true;
@@ -87,9 +88,18 @@
     driSupport = true;
     #driSupport32bit = true;
   };
-  #services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware = {
     nvidia = {
+      prime = {
+        #sync.enabled = true;
+	offload = {
+	  enable = true;
+	  enableOffloadCmd = true;
+	};
+        nvidiaBusId = "PCI:01:0:0";
+	intelBusId = "PCI:00:02:0";
+      };
       modesetting.enable = true;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
@@ -120,7 +130,7 @@
   users.users.saturnfulcrum = {
     isNormalUser = true;
    description = "Shakari Wade";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
     packages = with pkgs; [
       firefox-devedition
       librewolf
@@ -137,26 +147,41 @@
       vlc
       nushell
       gpick
+      rustup
+      cargo
+      rustc
+      mangohud
+      ardour
+      #pomodoro
+      #pomodoro-gtk
     ];
   };
 
+
   
-  #users.users.family = {
-  #  isNormalUser = true;
-  #  description = "Family member use.";
-  #  packages = with pkgs; [
-  #    chrome
-  #    libreoffice
-  #    vlc
-  #    steam
-  #    gimp
-  #  ]
-  #}
+  users.users.family = {
+    isNormalUser = true;
+    description = "Family member use.";
+    packages = with pkgs; [
+      google-chrome
+      libreoffice
+      vlc
+      steam
+      gimp
+    ];
+  };
   
   #Packages Setup
   nixpkgs.config.allowUnfree = true;
+  programs.nix-ld.enable = false;
+  programs.nix-ld.libraries = with pkgs; [];
   environment.systemPackages = with pkgs; [
     #Desktop Environment tools
+    python311Packages.qtile
+    wlroots
+    python311Packages.pywlroots
+    python311Packages.pywayland
+    python311Packages.xkbcommon
     polkit_gnome #Ensure that polkit is installed
     blueman
     bluez
@@ -179,6 +204,8 @@
     wget
     curl
     gnutar
+    gnumake
+    cmake
     zip
     unzip
     gzip
@@ -193,6 +220,7 @@
     docker
     htop
     btop
+    nvtop
     bat
     eza
     tldr
@@ -214,9 +242,18 @@
     ncdu
     thefuck
     powertop
-    #scrcpy
+    scrcpy
+    sl
+    qemu
+    qemu_kvm
+    OVMFFull
+    virt-manager
+    libvirt
+    bridge-utils
+    retext
     
     #Programming Languages
+    nasm
     libgccjit
     gcc9
     binutils
@@ -225,10 +262,12 @@
     llvm-manpages
     rustc
     cargo
+    rustup
     python3Full
     python311Packages.cython_3
     python311Packages.pip
     python311Packages.virtualenv
+    python311Packages.ipython
     jupyter-all
     haskell.compiler.native-bignum.ghc981
     go
@@ -250,8 +289,16 @@
     
     #User Shared Programs
     #gnome.gnome-tweaks
-
+    wine
+    #wine-wayland
+    gparted
+    protonup
   ];
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+  };
+  programs.gamemode.enable = true;
   
   
   system.stateVersion = "24.05";
@@ -264,7 +311,37 @@
 
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
-
+  virtualisation.podman.enable = true;
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+  systemd.services.clamd = {
+    description = "ClamAv Daemon";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecSart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+      Restart = "on-failure";
+      User = "clamav";
+      Group = "clamav";
+      PrivateTmp = true;
+      RuntimeDirectory = "clamav";
+      RuntimeDirectoryMode = "0755";
+    };
+  };
+  systemd.services.freshclam = {
+    description = "ClamAv Daemon";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecSart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+      Restart = "on-failure";
+      User = "clamav";
+      Group = "clamav";
+      PrivateTmp = true;
+      RuntimeDirectory = "clamav";
+      RuntimeDirectoryMode = "0755";
+    };
+  };
 
   #Notes:
 }
