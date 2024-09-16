@@ -5,10 +5,22 @@
   [ ./hardware-configuration.nix ];#./usr_modules/qtile.nix]; 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  swapDevices = [ {
-    device = "/var/lib/swapfile";
-    size = 8 * 1000;
-  } ];
+
+  #Filesystem Setup
+  fileSystems."/home" = {
+  	device = "/dev/disk/by-partlabel/Home";
+	fsType = "ext4";
+  };
+  #fileSystems."/nix" = {
+	#device = "/dev/disk/by-parlabel/Nix";
+	#fsType = "ext4";
+  #};
+  swapDevices = [ { device = "/dev/disk/by-partlabel/Swap"; } ];
+  #swapDevices = [ {
+  #  device = "var/lib/swapfile";
+  #  size = 8 * 1000;
+  #} ];
+  
 
 
   #Network setup
@@ -131,6 +143,7 @@
     isNormalUser = true;
    description = "Shakari Wade";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
+    home = "/home/saturnfulcrum";
     packages = with pkgs; [
       firefox-devedition
       librewolf
@@ -152,8 +165,9 @@
       rustc
       mangohud
       ardour
-      #pomodoro
-      #pomodoro-gtk
+      minecraft
+      prismlauncher
+      heroic
     ];
   };
 
@@ -162,6 +176,7 @@
   users.users.family = {
     isNormalUser = true;
     description = "Family member use.";
+    home = "/home/family";
     packages = with pkgs; [
       google-chrome
       libreoffice
@@ -196,9 +211,8 @@
     nix-output-monitor
     nvd
     alacritty
-    kitty
     git
-    gitg
+    #gitg
     neovim
     fzf
     wget
@@ -242,7 +256,7 @@
     ncdu
     thefuck
     powertop
-    scrcpy
+    #scrcpy
     sl
     qemu
     qemu_kvm
@@ -274,6 +288,7 @@
     luajit_openresty
     luajitPackages.luarocks
     jdk21
+    jdk17
     clojure
     perl
     nodejs_21
@@ -290,7 +305,7 @@
     #User Shared Programs
     #gnome.gnome-tweaks
     wine
-    #wine-wayland
+    wine-wayland
     gparted
     protonup
   ];
