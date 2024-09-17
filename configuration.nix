@@ -1,362 +1,177 @@
-{ config, pkgs, inputs, ... }:
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running ‘nixos-help’).
+
+{ config, pkgs, ... }:
+
 {
-  #Important system setup
-  imports = 
-  [ ./hardware-configuration.nix ];#./usr_modules/qtile.nix]; 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+	imports =
+		[ # Include the results of the hardware scan.
+			./hardware-configuration.nix
+	];
 
-  #Filesystem Setup
-  fileSystems."/home" = {
-  	device = "/dev/disk/by-partlabel/Home";
-	fsType = "ext4";
-  };
-  #fileSystems."/nix" = {
-	#device = "/dev/disk/by-parlabel/Nix";
-	#fsType = "ext4";
-  #};
-  swapDevices = [ { device = "/dev/disk/by-partlabel/Swap"; } ];
-  #swapDevices = [ {
-  #  device = "var/lib/swapfile";
-  #  size = 8 * 1000;
-  #} ];
-  
+	# Bootloader.
+	boot.loader.systemd-boot.enable = true;
+	boot.loader.efi.canTouchEfiVariables = true;
 
+	networking.hostName = "shakarisviewerofcarnage"; # Define your hostname.
+	# networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  #Network setup
-  networking.hostName = "shakarisviewerofcarnage";
-  networking.networkmanager.enable = true;
+	# Configure network proxy if necessary
+	# networking.proxy.default = "http://user:password@proxy:port/";
+	# networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  #Time and location setup
-  time.timeZone = "America/Los_Angeles";
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
-  };
+	#Filesystem
 
-  #Security Setup
-  security = {
-    sudo.extraRules = [
-      {
-        groups = ["wheel"];
-        commands = [{ command = "ALL"; options = ["PASSWD"];}];
-      }
-    ];
-    polkit = {
-      enable = true;
-   #   extraConfig = ''
-   #   '';
-    };
-  };
+	# Enable networking
+	networking.networkmanager.enable = true;
 
-  #Desktop Setup
-  services.xserver = {
-    enable = true;
-    displayManager = {
+	# Set your time zone.
+	time.timeZone = "America/Los_Angeles";
 
-      sddm = {
-        enable = false;
-      };
+	# Select internationalisation properties.
+	i18n.defaultLocale = "en_US.UTF-8";
 
-      lightdm = {
-        enable = true;
-        #extraConfig = ''
-          #logind-check-graphical = true
-        #'';
-      };
-      defaultSession = "none+qtile";
-    };
-    desktopManager = {
-      gnome.enable = false;
-      plasma5.enable = true;
-      xfce.enable = false;
-      cinnamon.enable = false;
-    };
-    windowManager.qtile.enable = true;
-    #layout = "us";
-    #xkbVariant = "";
-  };
-  
-  environment.sessionVariables = {
-    WL_NO_HARDWARE_CURSOR = "1";
-    NIXOS_OZONE_WL = "1";
-  };
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  };
-
-  #I/O and Driver Setup
-  hardware.opengl = {
-    enable = true;
-    driSupport = true;
-    #driSupport32bit = true;
-  };
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware = {
-    nvidia = {
-      prime = {
-        #sync.enabled = true;
-	offload = {
-	  enable = true;
-	  enableOffloadCmd = true;
+	i18n.extraLocaleSettings = {
+		LC_ADDRESS = "en_US.UTF-8";
+		LC_IDENTIFICATION = "en_US.UTF-8";
+		LC_MEASUREMENT = "en_US.UTF-8";
+		LC_MONETARY = "en_US.UTF-8";
+		LC_NAME = "en_US.UTF-8";
+		LC_NUMERIC = "en_US.UTF-8";
+		LC_PAPER = "en_US.UTF-8";
+		LC_TELEPHONE = "en_US.UTF-8";
+		LC_TIME = "en_US.UTF-8";
 	};
-        nvidiaBusId = "PCI:01:0:0";
-	intelBusId = "PCI:00:02:0";
-      };
-      modesetting.enable = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
-      open = true;
-      nvidiaSettings = true;
-    };
-    bluetooth = {
-      enable = true;
-      powerOnBoot = true;
-    };
-    pulseaudio = {
-      enable = false;
-    };
-  };
-  services.printing.enable = true;
-  sound.enable = true;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
-  };
-  #services.xserver.libinput.enable = true;
+	
+	#security = {
+		#sudo.extraRules = [
+			#groups = [ "wheel" ];
+			#commands = [{ command = "ALL"; options = ["PASSWD"]; }];
+		#];
+		#polkit = {
+			#enable = true
+		#};
+	#};
 
-  #User Setup
-  users.users.saturnfulcrum = {
-    isNormalUser = true;
-   description = "Shakari Wade";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
-    home = "/home/saturnfulcrum";
-    packages = with pkgs; [
-      firefox-devedition
-      librewolf
-      thunderbird
-      birdtray
-      keepassxc
-      libreoffice
-      godot_4
-      gimp
-      audacity
-      blender
-      openrgb
-      steam
-      vlc
-      nushell
-      gpick
-      rustup
-      cargo
-      rustc
-      mangohud
-      ardour
-      minecraft
-      prismlauncher
-      heroic
-    ];
-  };
+	# Enable the X11 windowing system.
+	# Enable the Cinnamon Desktop Environment.
+	services.xsever = {
+		enable = true;
+		displayManager.lightdm.enable = true;
+		desktopManager.cinnamon.enable = true;
+		#windowManager.qtile.enable = true
+		# Configure keymap in X11
+		xkb = {
+			layout = "us";
+			variant = "";
+		};
+		xserver.videoDrivers = [ "nvidia" ];
+		# Enable touchpad support (enabled default in most desktopManager).
+		#libinput.enable = true;
+	};
+	#Hardware Setup
+	hardware.opengl = {
+		enable = true;
+		driSupport = true;
+	};
+	hardware = {
+		nvidia = {
+			modesetting.enable = true;
+			prime = {
+				#sync.enabled = true;
+				offload = {
+					enable = true;
+					  enableOffloadCmd = true;
+				};
+				nvidiaBusId = "PCI:01:0:0";
+				intelBusId = "PCI:00:02:0";
+			};
+			modesetting.enable = true;
+			powerManagement.enable = false;
+			powerManagement.finegrained = false;
+			open = true;
+			nvidiaSettings = true;
+		};
+		bluetooth = {
+			enable = true;
+			powerOnBoot = true;
+		};
+		pulseaudio = {
+			enable = false;
+		};
+	};
 
+	# Enable CUPS to print documents.
+	services.printing.enable = true;
 
-  
-  users.users.family = {
-    isNormalUser = true;
-    description = "Family member use.";
-    home = "/home/family";
-    packages = with pkgs; [
-      google-chrome
-      libreoffice
-      vlc
-      steam
-      gimp
-    ];
-  };
-  
-  #Packages Setup
-  nixpkgs.config.allowUnfree = true;
-  programs.nix-ld.enable = false;
-  programs.nix-ld.libraries = with pkgs; [];
-  environment.systemPackages = with pkgs; [
-    #Desktop Environment tools
-    python311Packages.qtile
-    wlroots
-    python311Packages.pywlroots
-    python311Packages.pywayland
-    python311Packages.xkbcommon
-    polkit_gnome #Ensure that polkit is installed
-    blueman
-    bluez
-    bluez-alsa
-    lightdm
-    rofi
-    brightnessctl
-    pulseaudioFull
+	# Enable sound with pipewire.
+	security.rtkit.enable = true;
+	services.pipewire = {
+		enable = true;
+		alsa.enable = true;
+		alsa.support32Bit = true;
+		pulse.enable = true;
+		# If you want to use JACK applications, uncomment this
+		#jack.enable = true;
 
-    #Bash Tools
-    home-manager
-    nix-output-monitor
-    nvd
-    alacritty
-    git
-    #gitg
-    neovim
-    fzf
-    wget
-    curl
-    gnutar
-    gnumake
-    cmake
-    zip
-    unzip
-    gzip
-    python311Packages.cmake
-    #neovim-gtk
-    clipboard-jh
-    #neovim-qt
-    #flatpak
-    #flatpak-builder
-    distrobox
-    podman
-    docker
-    htop
-    btop
-    nvtop
-    bat
-    eza
-    tldr
-    fastfetch
-    ranger
-    w3m
-    links2
-    hardinfo
-    qtcreator
-    glade
-    tmux
-    clamav
-    clamtk
-    clamsmtp
-    openssl_3_1
-    hollywood
-    ffmpeg_4-full
-    nmap
-    ncdu
-    thefuck
-    powertop
-    #scrcpy
-    sl
-    qemu
-    qemu_kvm
-    OVMFFull
-    virt-manager
-    libvirt
-    bridge-utils
-    retext
-    
-    #Programming Languages
-    nasm
-    libgccjit
-    gcc9
-    binutils
-    libllvm
-    clang_17
-    llvm-manpages
-    rustc
-    cargo
-    rustup
-    python3Full
-    python311Packages.cython_3
-    python311Packages.pip
-    python311Packages.virtualenv
-    python311Packages.ipython
-    jupyter-all
-    haskell.compiler.native-bignum.ghc981
-    go
-    luajit_openresty
-    luajitPackages.luarocks
-    jdk21
-    jdk17
-    clojure
-    perl
-    nodejs_21
-    ruby
-    R
-    julia_18
-    cmucl_binary #common-lisp
-    mysql80
-    dgraph
-    erlang
-    rabbitmq-server
-    gleam
-    
-    #User Shared Programs
-    #gnome.gnome-tweaks
-    wine
-    wine-wayland
-    gparted
-    protonup
-  ];
-  programs.steam = {
-    enable = true;
-    gamescopeSession.enable = true;
-  };
-  programs.gamemode.enable = true;
-  
-  
-  system.stateVersion = "24.05";
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+		# use the example session manager (no others are packaged yet so this is enabled by default,
+		# no need to redefine it in your config for now)
+		#media-session.enable = true;
+	};
 
-  #Services and Daemon Setup
-  #services.openssh.enable = true;
-  #services.flatpak.enable = true;
-  services.blueman.enable = true;
+	# Define a user account. Don't forget to set a password with ‘passwd’.
+	users.users.saturnfulcrum = {
+		isNormalUser = true;
+		description = "Shakari Wade";
+		extraGroups = [ "networkmanager" "wheel" ];
+		packages = with pkgs; [
+			thunderbird
+			birdtray
+			librewolf
+			keepassxc
+		];
+	};
 
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  virtualisation.podman.enable = true;
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
-  systemd.services.clamd = {
-    description = "ClamAv Daemon";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecSart = "${pkgs.clamav}/bin/clamd --foreground=yes";
-      Restart = "on-failure";
-      User = "clamav";
-      Group = "clamav";
-      PrivateTmp = true;
-      RuntimeDirectory = "clamav";
-      RuntimeDirectoryMode = "0755";
-    };
-  };
-  systemd.services.freshclam = {
-    description = "ClamAv Daemon";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecSart = "${pkgs.clamav}/bin/clamd --foreground=yes";
-      Restart = "on-failure";
-      User = "clamav";
-      Group = "clamav";
-      PrivateTmp = true;
-      RuntimeDirectory = "clamav";
-      RuntimeDirectoryMode = "0755";
-    };
-  };
+	# Install firefox.
+	#programs.firefox.enable = true;
 
-  #Notes:
+	# Allow unfree packages
+	nixpkgs.config.allowUnfree = true;
+
+	# List packages installed in system profile. To search, run:
+	# $ nix search wget
+	environment.systemPackages = with pkgs; [
+		neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+		wget
+		git
+		tmux
+	];
+
+	# Some programs need SUID wrappers, can be configured further or are
+	# started in user sessions.
+	# programs.mtr.enable = true;
+	# programs.gnupg.agent = {
+		# enable = true;
+		# enableSSHSupport = true;
+	# };
+
+	# List services that you want to enable:
+
+	# Enable the OpenSSH daemon.
+	# services.openssh.enable = true;
+
+	# Open ports in the firewall.
+	# networking.firewall.allowedTCPPorts = [ ... ];
+	# networking.firewall.allowedUDPPorts = [ ... ];
+	# Or disable the firewall altogether.
+	# networking.firewall.enable = false;
+
+	# This value determines the NixOS release from which the default
+	# settings for stateful data, like file locations and database versions
+	# on your system were taken. It‘s perfectly fine and recommended to leave
+	# this value at the release version of the first install of this system.
+	# Before changing this value read the documentation for this option
+	# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+	system.stateVersion = "24.05"; # Did you read the comment?
 }
