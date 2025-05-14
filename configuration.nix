@@ -3,7 +3,6 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
 {
 	imports =
 		[ # Include the results of the hardware scan.
@@ -22,6 +21,7 @@
 	# networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
 	#Filesystem
+	boot.tmp.useTmpfs = true;
 
 	# Enable networking
 	networking.networkmanager.enable = true;
@@ -44,32 +44,36 @@
 		LC_TIME = "en_US.UTF-8";
 	};
 	
-	#security = {
+	security = {
 		#sudo.extraRules = [
 			#groups = [ "wheel" ];
 			#commands = [{ command = "ALL"; options = ["PASSWD"]; }];
 		#];
-		#polkit = {
-			#enable = true
-		#};
-	#};
+		polkit = {
+			enable = true;
+		};
+	};
 
 	# Enable the X11 windowing system.
 	# Enable the Cinnamon Desktop Environment.
-	services.xsever = {
+
+	services.xserver = {
 		enable = true;
 		displayManager.lightdm.enable = true;
 		desktopManager.cinnamon.enable = true;
-		#windowManager.qtile.enable = true
-		# Configure keymap in X11
+		windowManager.qtile = {
+			enable = true;
+			#extraPackages = python3Packages: with python3Packages; [ qtile-extras ]; #maybe use "qtile start -b wayland"
+		};
+		#Configure keymap in X11
 		xkb = {
 			layout = "us";
 			variant = "";
 		};
-		xserver.videoDrivers = [ "nvidia" ];
-		# Enable touchpad support (enabled default in most desktopManager).
-		#libinput.enable = true;
+		videoDrivers = [ "nvidia" ];
+		#Enable touchpad support (enabled default in most desktopManager).
 	};
+	services.libinput.enable = true;
 	#Hardware Setup
 	hardware.opengl = {
 		enable = true;
@@ -77,7 +81,6 @@
 	};
 	hardware = {
 		nvidia = {
-			modesetting.enable = true;
 			prime = {
 				#sync.enabled = true;
 				offload = {
@@ -104,6 +107,11 @@
 
 	# Enable CUPS to print documents.
 	services.printing.enable = true;
+	services.avahi = {
+		enable = true;
+		nssmdns4 = true;
+		openFirewall = true;
+	};
 
 	# Enable sound with pipewire.
 	security.rtkit.enable = true;
@@ -121,15 +129,42 @@
 	};
 
 	# Define a user account. Don't forget to set a password with ‘passwd’.
+	users.users.root = {
+		#group = "root";
+		packages = with pkgs; [
+			home-manager
+		];
+	};
+
 	users.users.saturnfulcrum = {
 		isNormalUser = true;
 		description = "Shakari Wade";
-		extraGroups = [ "networkmanager" "wheel" ];
+		extraGroups = [ "networkmanager" "wheel" "libvirtd" "lp" ];
 		packages = with pkgs; [
 			thunderbird
 			birdtray
 			librewolf
 			keepassxc
+			alacritty
+			ardour
+			audacity
+			vlc
+			firefox-devedition
+			protonup
+			steam
+			wine
+			bottles
+			mangohud
+			heroic
+			sl
+			home-manager
+			libreoffice
+			#logseq
+			obsidian
+			inkscape
+			#inkscap-with-extensions
+			#godot3
+			godot_4
 		];
 	};
 
@@ -137,41 +172,194 @@
 	#programs.firefox.enable = true;
 
 	# Allow unfree packages
-	nixpkgs.config.allowUnfree = true;
 
 	# List packages installed in system profile. To search, run:
 	# $ nix search wget
+	nixpkgs.config.allowUnfree = true;
+	nix.settings.experimental-features = [ "nix-command" "flakes" ];
+	programs.nix-ld.enable = true;
+	programs.nix-ld.libraries = [];
 	environment.systemPackages = with pkgs; [
-		neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+		#Window Manager Tool
+		polkit
+		rofi
+
+		#System Services
+		clamav
+		clamtk
+		clamsmtp
+
+		#Virtualization
+		qemu
+		qemu_kvm
+		#qemu_full
+		OVMFFull
+		virt-manager
+		libvirt
+		#iproute2/bridge-utils #For using networking in qemu vm
+		docker
+		kubernetes
+		podman
+		#distrobox
+
+		#Bash Tools
+		neovim
 		wget
+		curl
+		gnutar
+		zip
+		unzip
+		gzip
+		gnumake
+		cmake
 		git
+		gitg
 		tmux
+		ncdu
+		nushell
+		gparted
+		htop
+		nvtopPackages.full
+		powertop
+		btop
+		bat
+		eza
+		tldr
+		hardinfo
+		fastfetch
+		w3m
+		ranger
+		fzf
+		nmap
+		ffmpeg
+
+		#srccpy
+		pciutils
+		wl-clipboard
+		wl-clipboard-x11
+		clipboard-jh
+
+		#Languages
+		nasm
+		glibc
+		gcc
+		binutils
+		libgccjit
+		libgcc
+		gdb
+		clang_14
+		libclang
+		llvm-manpages
+		llvm_18
+		libllvm
+		rustup
+		cargo
+		rustc
+		cargo-binutils
+		cargo-llvm-cov #5 previous are for rust
+		python311Full
+		python311Packages.pip
+		python311Packages.cython
+		python311Packages.virtualenv
+		python311Packages.ipython
+		#hakell.compiler.native-bignum.ghc981
+		#go
+		#erlang
+		#gleam
+		jdk22 #libreoffice dependency
+		postgresql
+		mysql
+		
+
+		#Shared Programs
+		wxhexeditor
+		dhex
+		hexedit
+		hexcurse
+		system-config-printer
 	];
 
-	# Some programs need SUID wrappers, can be configured further or are
-	# started in user sessions.
-	# programs.mtr.enable = true;
-	# programs.gnupg.agent = {
-		# enable = true;
-		# enableSSHSupport = true;
-	# };
+	#Some programs need SUID wrappers, can be configured further or are
+	#started in user sessions.
+	#programs.mtr.enable = true;
+	#programs.gnupg.agent = {
+	       # enable = true;
+	       # enableSSHSupport = true;
+	#};
 
-	# List services that you want to enable:
+	#Steam Setup
+	programs.steam = {
+		enable = true;
+		gamescopeSession.enable = true;
+	};
+	programs.gamemode.enable = true;
 
-	# Enable the OpenSSH daemon.
-	# services.openssh.enable = true;
+	#Services/Daemons
+	virtualisation.libvirtd.enable = true;
+	programs.virt-manager.enable = true;
 
-	# Open ports in the firewall.
-	# networking.firewall.allowedTCPPorts = [ ... ];
-	# networking.firewall.allowedUDPPorts = [ ... ];
-	# Or disable the firewall altogether.
-	# networking.firewall.enable = false;
+	systemd.services.clamd = {
+		description = "ClamAV Daemon";
+		after = [ "network.target" ];
+		wantedBy = [ "multi-user.target" ];
+		serviceConfig = {
+			ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+			Restart = "on-failure";
+			User = "clamav";
+			Group = "clamav";
+			PrivateTmp = true;
+			RuntimeDirectory = "clamav";
+			RunetimeDirectoryMode = "0755";
+		};
+	};
 
-	# This value determines the NixOS release from which the default
-	# settings for stateful data, like file locations and database versions
-	# on your system were taken. It‘s perfectly fine and recommended to leave
-	# this value at the release version of the first install of this system.
-	# Before changing this value read the documentation for this option
-	# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-	system.stateVersion = "24.05"; # Did you read the comment?
+	services.mysql = {
+		enable = true;
+		package = pkgs.mariadb;
+	};
+	#config.services.postgresql = {
+		#enable = true;
+		#identMap = ''
+		#'';
+	#};
+
+	systemd.services.freshclam = {
+		description = "Clam Update";
+		after = [ "network.target" ];
+		wantedBy = [ "multi-user.target" ];
+		serviceConfig = {
+			ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+			Restart = "on-failure";
+			User = "clamav";
+			Group = "clamav";
+			PrivateTmp = true;
+			RuntimeDirectory = "clamav";
+			RunetimeDirectoryMode = "0755";
+		};
+	};
+
+	users.users.clamav = {
+		isNormalUser = false;
+		isSystemUser = true;
+		group = "clamav";
+	};
+
+	users.groups.clamav = {};
+
+	#Enable the OpenSSH daemon.
+	#services.openssh.enable = true;
+
+	#Open ports in the firewall.
+	#networking.firewall.allowedTCPPorts = [ ... ];
+	#networking.firewall.allowedUDPPorts = [ ... ];
+	#Or disable the firewall altogether.
+	#networking.firewall.enable = false;
+
+	#This value determines the NixOS release from which the default
+	#settings for stateful data, like file locations and database versions
+	#on your system were taken. It‘s perfectly fine and recommended to leave
+	#this value at the release version of the first install of this system.
+	#Before changing this value read the documentation for this option
+	#(e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+	system.stateVersion = "24.11"; # Did you read the comment?
 }
