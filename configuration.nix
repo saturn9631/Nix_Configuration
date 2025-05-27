@@ -13,7 +13,11 @@
 	boot.loader.systemd-boot.enable = true;
 	boot.loader.efi.canTouchEfiVariables = true;
 
-	networking.hostName = "shakarisviewerofcarnage"; # Define your hostname.
+	networking = { 
+		networkmanager.enable = true; # Enable networking
+		hostName = "ShakarisEyeOfSurveilance"; # Define your hostname.
+		#hostName = "Nixos";
+	};
 	# networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
 	# Configure network proxy if necessary
@@ -22,9 +26,14 @@
 
 	#Filesystem
 	boot.tmp.useTmpfs = true;
-
-	# Enable networking
-	networking.networkmanager.enable = true;
+	#fileSystems."/nix/store" = {
+		#device = "/dev/nvme0n1p2";
+		#fsType = "ext4";
+	#}
+	#fileSystems."/home" = {
+		#device = "/dev/nvme1n1p1";
+		#fsType = "ext4";
+	#};
 
 	# Set your time zone.
 	time.timeZone = "America/Los_Angeles";
@@ -54,16 +63,15 @@
 		};
 	};
 
-	# Enable the X11 windowing system.
-	# Enable the Cinnamon Desktop Environment.
 
+	# Desktop
 	services.xserver = {
 		enable = true;
-		displayManager.lightdm.enable = true;
-		desktopManager.cinnamon.enable = true;
+		#displayManager.lightdm.enable = true;
+		#desktopManager.cinnamon.enable = true;
 		windowManager.qtile = {
 			enable = true;
-			#extraPackages = python3Packages: with python3Packages; [ qtile-extras ]; #maybe use "qtile start -b wayland"
+			extraPackages = python3Packages: with python3Packages; [ qtile-extras ]; #maybe use "qtile start -b wayland"
 		};
 		#Configure keymap in X11
 		xkb = {
@@ -75,33 +83,35 @@
 	};
 	services.libinput.enable = true;
 	#Hardware Setup
-	hardware.opengl = {
-		enable = true;
-		driSupport = true;
-	};
 	hardware = {
+		#opengl = {
+			#enable = true;
+			#driSupport = true;
 		nvidia = {
-			prime = {
-				#sync.enabled = true;
-				offload = {
-					enable = true;
-					  enableOffloadCmd = true;
-				};
-				nvidiaBusId = "PCI:01:0:0";
-				intelBusId = "PCI:00:02:0";
-			};
-			modesetting.enable = true;
-			powerManagement.enable = false;
-			powerManagement.finegrained = false;
 			open = true;
-			nvidiaSettings = true;
-		};
+			#prime = {
+				#sync.enabled = true;
+				#offload = {
+					#enable = true;
+					#enableOffloadCmd = true;
+				#};
+				#nvidiaBusId = "PCI:01:0:0";
+				#intelBusId = "PCI:00:02:0";
+			};
+			#modesetting.enable = true;
+			#powerManagement.enable = false;
+			#powerManagement.finegrained = false;
+			#open = true;
+			#nvidiaSettings = true;
+		#};
 		bluetooth = {
 			enable = true;
 			powerOnBoot = true;
+			#General.Enable = "Source,Sink,Media,Socket";
 		};
 		pulseaudio = {
 			enable = false;
+			package = pkgs.pulseaudioFull;
 		};
 	};
 
@@ -165,6 +175,7 @@
 			#inkscap-with-extensions
 			#godot3
 			godot_4
+			gpick
 		];
 	};
 
@@ -181,8 +192,10 @@
 	programs.nix-ld.libraries = [];
 	environment.systemPackages = with pkgs; [
 		#Window Manager Tool
+		#qtile
 		polkit
 		rofi
+		brightnessctl
 
 		#System Services
 		clamav
@@ -266,9 +279,9 @@
 		#go
 		#erlang
 		#gleam
-		jdk22 #libreoffice dependency
+		#jdk22 #libreoffice dependency
 		postgresql
-		mysql
+		#mysql
 		
 
 		#Shared Programs
@@ -277,6 +290,8 @@
 		hexedit
 		hexcurse
 		system-config-printer
+		#clipboard-jh
+		wl-clipboard
 	];
 
 	#Some programs need SUID wrappers, can be configured further or are
@@ -298,44 +313,53 @@
 	virtualisation.libvirtd.enable = true;
 	programs.virt-manager.enable = true;
 
-	systemd.services.clamd = {
-		description = "ClamAV Daemon";
-		after = [ "network.target" ];
-		wantedBy = [ "multi-user.target" ];
-		serviceConfig = {
-			ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
-			Restart = "on-failure";
-			User = "clamav";
-			Group = "clamav";
-			PrivateTmp = true;
-			RuntimeDirectory = "clamav";
-			RunetimeDirectoryMode = "0755";
-		};
-	};
 
-	services.mysql = {
-		enable = true;
-		package = pkgs.mariadb;
-	};
+	#services.mysql = {
+		#enable = true;
+		#package = pkgs.mariadb;
+	#};
 	#config.services.postgresql = {
 		#enable = true;
 		#identMap = ''
 		#'';
 	#};
 
-	systemd.services.freshclam = {
-		description = "Clam Update";
-		after = [ "network.target" ];
-		wantedBy = [ "multi-user.target" ];
-		serviceConfig = {
-			ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
-			Restart = "on-failure";
-			User = "clamav";
-			Group = "clamav";
-			PrivateTmp = true;
-			RuntimeDirectory = "clamav";
-			RunetimeDirectoryMode = "0755";
+	systemd.services = {
+		clamd = {
+			description = "ClamAV Daemon";
+			after = [ "network.target" ];
+			wantedBy = [ "multi-user.target" ];
+			serviceConfig = {
+				ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+				Restart = "on-failure";
+				User = "clamav";
+				Group = "clamav";
+				PrivateTmp = true;
+				RuntimeDirectory = "clamav";
+				RunetimeDirectoryMode = "0755";
+			};
 		};
+		freshclam = {
+			description = "Clam Update";
+			after = [ "network.target" ];
+			wantedBy = [ "multi-user.target" ];
+			serviceConfig = {
+				ExecStart = "${pkgs.clamav}/bin/clamd --foreground=yes";
+				Restart = "on-failure";
+				User = "clamav";
+				Group = "clamav";
+				PrivateTmp = true;
+				RuntimeDirectory = "clamav";
+				RunetimeDirectoryMode = "0755";
+			};
+		};
+	};
+
+	systemd.user.services.mpris-proxy = {
+		description = "Mpris proxy";
+		after = [ "network.target" "sound.target" ];
+		wantedBy = [ "default.target" ];
+		serviceConfig.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
 	};
 
 	users.users.clamav = {
