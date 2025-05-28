@@ -60,6 +60,9 @@
 		#];
 		polkit = {
 			enable = true;
+			debug = true;
+			#package = pkgs.polkit_gnome;
+			#adminIdentities = [ "unix-group:wheel" "unix-user:saturnfulcrum" "unix-user:root"];
 		};
 	};
 
@@ -175,7 +178,10 @@
 			#inkscap-with-extensions
 			#godot3
 			godot_4
+			blender
 			gpick
+			geogebra
+			qalculate-gtk
 		];
 	};
 
@@ -192,10 +198,9 @@
 	programs.nix-ld.libraries = [];
 	environment.systemPackages = with pkgs; [
 		#Window Manager Tool
-		#qtile
-		polkit
 		rofi
 		brightnessctl
+		alsa-utils
 
 		#System Services
 		clamav
@@ -246,6 +251,9 @@
 		nmap
 		ffmpeg
 		mdcat
+		rink
+		kalker
+		paging-calculator
 
 		#srccpy
 		pciutils
