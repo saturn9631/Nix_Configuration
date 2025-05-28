@@ -245,6 +245,7 @@
 		fzf
 		nmap
 		ffmpeg
+		mdcat
 
 		#srccpy
 		pciutils
