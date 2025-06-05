@@ -157,12 +157,13 @@
 			thunderbird
 			birdtray
 			librewolf
+			firefox-devedition
+			firefox
 			keepassxc
 			alacritty
 			ardour
 			audacity
 			vlc
-			firefox-devedition
 			protonup
 			steam
 			wine
@@ -182,6 +183,9 @@
 			gpick
 			geogebra
 			qalculate-gtk
+			spaceFM
+			nb
+			nomacs
 		];
 	};
 
@@ -201,6 +205,7 @@
 		rofi
 		brightnessctl
 		alsa-utils
+		mtpfs
 
 		#System Services
 		clamav
