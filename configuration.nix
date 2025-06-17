@@ -1,4 +1,4 @@
-# Edit this configuration file to define what should be installed on
+## Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
@@ -16,7 +16,6 @@
 	networking = { 
 		networkmanager.enable = true; # Enable networking
 		hostName = "ShakarisEyeOfSurveilance"; # Define your hostname.
-		#hostName = "Nixos";
 	};
 	# networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -112,34 +111,35 @@
 			powerOnBoot = true;
 			#General.Enable = "Source,Sink,Media,Socket";
 		};
+	};
+	services = {
 		pulseaudio = {
 			enable = false;
 			package = pkgs.pulseaudioFull;
 		};
-	};
-
-	# Enable CUPS to print documents.
-	services.printing.enable = true;
-	services.avahi = {
-		enable = true;
-		nssmdns4 = true;
-		openFirewall = true;
+		printing.enable = true;
+		# Enable CUPS to print documents.
+		avahi = {
+			enable = true;
+			nssmdns4 = true;
+			openFirewall = true;
+		};
+		pipewire = {
+			enable = true;
+			alsa.enable = true;
+			alsa.support32Bit = true;
+			pulse.enable = true;
+			# If you want to use JACK applications, uncomment this
+			#jack.enable = true;
+	
+			# use the example session manager (no others are packaged yet so this is enabled by default,
+			# no need to redefine it in your config for now)
+			#media-session.enable = true;
+		};
 	};
 
 	# Enable sound with pipewire.
 	security.rtkit.enable = true;
-	services.pipewire = {
-		enable = true;
-		alsa.enable = true;
-		alsa.support32Bit = true;
-		pulse.enable = true;
-		# If you want to use JACK applications, uncomment this
-		#jack.enable = true;
-
-		# use the example session manager (no others are packaged yet so this is enabled by default,
-		# no need to redefine it in your config for now)
-		#media-session.enable = true;
-	};
 
 	# Define a user account. Don't forget to set a password with ‘passwd’.
 	users.users.root = {
@@ -173,15 +173,11 @@
 			sl
 			home-manager
 			libreoffice
-			#logseq
-			obsidian
 			inkscape
-			#inkscap-with-extensions
-			#godot3
 			godot_4
 			blender
 			gpick
-			geogebra
+			geogebra6
 			qalculate-gtk
 			spaceFM
 			nb
@@ -197,6 +193,7 @@
 	# List packages installed in system profile. To search, run:
 	# $ nix search wget
 	nixpkgs.config.allowUnfree = true;
+	nixpkgs.config.permittedInsecurePackages = [ "electron-33.4.11" ];
 	nix.settings.experimental-features = [ "nix-command" "flakes" ];
 	programs.nix-ld.enable = true;
 	programs.nix-ld.libraries = [];
@@ -206,11 +203,13 @@
 		brightnessctl
 		alsa-utils
 		mtpfs
+		#jmtpfs
+		#go-mtpfs
+		#android-file-transfer
 
 		#System Services
 		clamav
 		clamtk
-		clamsmtp
 
 		#Virtualization
 		qemu
@@ -248,7 +247,7 @@
 		bat
 		eza
 		tldr
-		hardinfo
+		hardinfo2
 		fastfetch
 		w3m
 		ranger
@@ -299,9 +298,6 @@
 		
 
 		#Shared Programs
-		wxhexeditor
-		dhex
-		hexedit
 		hexcurse
 		system-config-printer
 		#clipboard-jh
@@ -399,5 +395,5 @@
 	#this value at the release version of the first install of this system.
 	#Before changing this value read the documentation for this option
 	#(e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-	system.stateVersion = "24.11"; # Did you read the comment?
+	system.stateVersion = "25.05"; # Did you read the comment?
 }
