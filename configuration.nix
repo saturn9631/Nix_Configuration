@@ -60,9 +60,11 @@
 		polkit = {
 			enable = true;
 			debug = true;
-			#package = pkgs.polkit_gnome;
-			#adminIdentities = [ "unix-group:wheel" "unix-user:saturnfulcrum" "unix-user:root"];
+			#package = pkgs.soteria;
+			adminIdentities = [ "unix-group:wheel" "unix-user:saturnfulcrum" "unix-user:root"];
 		};
+		soteria.enable = true;
+		rtkit.enable = true;
 	};
 
 
@@ -138,14 +140,10 @@
 		};
 	};
 
-	# Enable sound with pipewire.
-	security.rtkit.enable = true;
-
 	# Define a user account. Don't forget to set a password with ‘passwd’.
 	users.users.root = {
 		#group = "root";
 		packages = with pkgs; [
-			home-manager
 		];
 	};
 
@@ -171,7 +169,6 @@
 			mangohud
 			heroic
 			sl
-			home-manager
 			libreoffice
 			inkscape
 			godot_4
@@ -179,7 +176,7 @@
 			gpick
 			geogebra6
 			qalculate-gtk
-			spaceFM
+
 			nb
 			nomacs
 		];
@@ -202,10 +199,10 @@
 		rofi
 		brightnessctl
 		alsa-utils
-		mtpfs
-		#jmtpfs
-		#go-mtpfs
-		#android-file-transfer
+		fuse
+		simple-mtpfs
+		android-file-transfer
+		spaceFM
 
 		#System Services
 		clamav
@@ -225,6 +222,7 @@
 		#distrobox
 
 		#Bash Tools
+		home-manager
 		neovim
 		wget
 		curl
@@ -247,10 +245,14 @@
 		bat
 		eza
 		tldr
+		ripgrep
+		ripgrep-all
+		fselect
 		hardinfo2
 		fastfetch
 		w3m
 		ranger
+		yazi
 		fzf
 		nmap
 		ffmpeg
@@ -258,14 +260,17 @@
 		rink
 		kalker
 		paging-calculator
-
+		taskwarrior3
+		hexcurse
 		#srccpy
 		pciutils
 		wl-clipboard
 		wl-clipboard-x11
 		clipboard-jh
+		wiki-tui
 
 		#Languages
+		ghidra
 		nasm
 		glibc
 		gcc
@@ -288,20 +293,27 @@
 		python311Packages.cython
 		python311Packages.virtualenv
 		python311Packages.ipython
-		#hakell.compiler.native-bignum.ghc981
-		#go
-		#erlang
-		#gleam
-		#jdk22 #libreoffice dependency
+		haskell.compiler.native-bignum.ghc984
+		perl
+		go
+		zig
+		erlang
+		sbcl
+		bend
+		nodejs_24 #neovim plugin dependency
+		jdk24 #libreoffice dependency
+		scala
 		postgresql
-		#mysql
+		cudaPackages.cudatoolkit
+		cdk
+		glade
+		qtcreator
 		
 
 		#Shared Programs
-		hexcurse
 		system-config-printer
 		#clipboard-jh
-		wl-clipboard
+		ollama-cuda
 	];
 
 	#Some programs need SUID wrappers, can be configured further or are
