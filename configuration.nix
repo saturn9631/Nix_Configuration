@@ -288,6 +288,7 @@
 		rustc
 		cargo-binutils
 		cargo-llvm-cov #5 previous are for rust
+		pkg-config # For some reason rust needs this
 		python311Full
 		python311Packages.pip
 		python311Packages.cython

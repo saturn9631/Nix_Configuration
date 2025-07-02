@@ -84,8 +84,9 @@ home.homeDirectory = "/home/saturnfulcrum";
 			list = "eza";
 			print = "bat";
 			hint = "tldr";
+			trash = "gio trash";
+			init-tmux = "~/tmux-init.sh";
 		};
-		PS1 = "[\u@\h \W]\$";
 	};
 	# Let Home Manager install and manage itself.
 	programs.home-manager.enable = true;
